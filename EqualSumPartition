@@ -1,0 +1,107 @@
+package com.dsa.m_dynamicprogramming.knapsack;
+
+public class EqualSumPartitionProblem {
+
+	/** Using recursion */
+	private static boolean equalSumPartition(int[] arr, int sum, int n) {
+
+		if (sum == 0) {
+			return true;
+		}
+		if (n == 0) {
+			return false;
+		}
+
+		if (arr[n - 1] <= sum) {
+			return equalSumPartition(arr, sum - arr[n - 1], n - 1) || equalSumPartition(arr, sum, n - 1);
+		} else {
+			return equalSumPartition(arr, sum, n - 1);
+		}
+	}
+
+	/** Using recursion and memoization */
+	private static int[][] dp;
+
+	private static int equalSumPartitionMemoization(int[] arr, int sum, int n) {
+
+		if (sum == 0) {
+			return 1;
+		}
+		if (n == 0) {
+			return 0;
+		}
+
+		if (dp[sum][n] != -1) {
+			return dp[sum][n];
+		} else {
+			if (arr[n - 1] <= sum) {
+				return dp[sum][n] = equalSumPartitionMemoization(arr, sum - arr[n - 1], n - 1) == 1
+						|| equalSumPartitionMemoization(arr, sum, n - 1) == 1 ? 1 : 0;
+			} else {
+				return dp[sum][n] = equalSumPartitionMemoization(arr, sum, n - 1);
+			}
+		}
+
+	}
+
+	/** Using bottom up */
+	private static int equalSumPartitionBottomUp(int[] arr, int sum, int n) {
+
+		dp = new int[sum + 1][n + 1];
+
+		for (int i = 0; i < sum + 1; i++) {
+			dp[i][0] = 0;
+		}
+
+		for (int i = 0; i < n + 1; i++) {
+			dp[0][i] = 1;
+		}
+
+		for (int i = 1; i < sum + 1; i++) {
+			for (int j = 1; j < n + 1; j++) {
+				if (arr[j - 1] <= i) {
+					dp[i][j] = dp[i - arr[j - 1]][j - 1] == 1 || dp[i][j - 1] == 1 ? 1 : 0;
+				} else {
+					dp[i][j] = dp[i][j - 1];
+				}
+			}
+		}
+
+		return dp[sum][n];
+	}
+
+	private static int sumOfArray(int[] arr) {
+		int sum = 0;
+		for (int val : arr) {
+			sum += val;
+		}
+		return sum;
+	}
+
+	public static void main(String[] args) {
+
+		int[] arr = new int[] { 1, 5, 11, 5, 3, 3 };
+		int n = arr.length;
+
+		int sum = sumOfArray(arr);
+
+		if (sum % 2 != 0) {
+			System.out.println("Not possible to partition the array ito equal sum sub arrays.");
+		} else {
+
+			int targetSum = sum / 2;
+			System.out.println("Using recursion : " + equalSumPartition(arr, targetSum, n));
+
+			dp = new int[targetSum + 1][n + 1];
+			for (int i = 0; i < dp.length; i++) {
+				for (int j = 0; j < dp[i].length; j++) {
+					dp[i][j] = -1;
+				}
+			}
+			System.out.println("Using recursion and memoization : " + equalSumPartitionMemoization(arr, targetSum, n));
+
+			System.out.println("Using bottom up approach : " + equalSumPartitionBottomUp(arr, targetSum, n));
+		}
+	}
+
+}
